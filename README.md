@@ -46,22 +46,6 @@ cd backend
 
 Le serveur démarre sur **`http://localhost:8081`**.
 
-### Endpoints principaux
-
-| Méthode  | URL                      | Description                   |
-| -------- | ------------------------ | ----------------------------- |
-| `GET`    | `/vehicles`              | Liste tous les véhicules      |
-| `POST`   | `/vehicles`              | Ajouter un véhicule           |
-| `DELETE` | `/vehicles/{id}`         | Supprimer un véhicule         |
-| `GET`    | `/vehicles/{id}/rentals` | Locations d'un véhicule       |
-| `POST`   | `/vehicles/{id}/rent`    | Louer (admin, par customerId) |
-| `POST`   | `/vehicles/{id}/book`    | Réserver (portail client)     |
-| `GET`    | `/customers`             | Liste tous les clients        |
-| `POST`   | `/customers`             | Ajouter un client             |
-| `DELETE` | `/customers/{id}`        | Supprimer un client           |
-| `GET`    | `/rentals`               | Liste toutes les locations    |
-| `GET`    | `/rentals/vehicle/{id}`  | Locations d'un véhicule       |
-
 ---
 
 ## 3. Backoffice (Admin)
@@ -146,6 +130,22 @@ vehiclerental/
 ```
 
 ---
+
+### Endpoints principaux
+
+| Méthode  | URL                      | Description                   |
+| -------- | ------------------------ | ----------------------------- |
+| `GET`    | `/vehicles`              | Liste tous les véhicules      |
+| `POST`   | `/vehicles`              | Ajouter un véhicule           |
+| `DELETE` | `/vehicles/{id}`         | Supprimer un véhicule         |
+| `GET`    | `/vehicles/{id}/rentals` | Locations d'un véhicule       |
+| `POST`   | `/vehicles/{id}/rent`    | Louer (admin, par customerId) |
+| `POST`   | `/vehicles/{id}/book`    | Réserver (portail client)     |
+| `GET`    | `/customers`             | Liste tous les clients        |
+| `POST`   | `/customers`             | Ajouter un client             |
+| `DELETE` | `/customers/{id}`        | Supprimer un client           |
+| `GET`    | `/rentals`               | Liste toutes les locations    |
+| `GET`    | `/rentals/vehicle/{id}`  | Locations d'un véhicule       |
 
 ## Types de véhicules
 
