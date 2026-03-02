@@ -33,6 +33,11 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.getAllVehicles());
     }
 
+    @GetMapping("/{id}/rentals")
+    public ResponseEntity<List<Rental>> getRentalsByVehicle(@PathVariable Long id) {
+        return ResponseEntity.ok(rentalService.getRentalsByVehicleId(id));
+    }
+
     // Admin: location par customerId
     @PostMapping("/{id}/rent")
     public ResponseEntity<Rental> rentVehicle(
