@@ -20,8 +20,13 @@ export default function VehiclesPage() {
   const [calendarVehicleId, setCalendarVehicleId] = useState(null)
 
   const fetchVehicles = async () => {
-    const res = await fetch('/api/vehicles')
-    setVehicles(await res.json())
+    try {
+      const res = await fetch('/api/vehicles')
+      const data = await res.json()
+      setVehicles(Array.isArray(data) ? data : [])
+    } catch {
+      setVehicles([])
+    }
   }
 
   const handleDelete = async (id) => {

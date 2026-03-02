@@ -2,13 +2,118 @@ import { useEffect, useState } from 'react'
 
 const defaultForm = { vehicleId: '', customerId: '', startDate: '', endDate: '' }
 
+const TYPE_LABELS = { CAR: '🚗 Voiture', BIKE: '🚲 Vélo', TRUCK: '🚛 Camion' }
+const TYPE_IMG    = { CAR: '/voiture.png', BIKE: '/moto.png', TRUCK: '/camion.png' }
+
+function vehicleImage(vehicle) {
+  if (!vehicle) return null
+  return TYPE_IMG[vehicle.type] || '/voiture.png'
+}
+
+function daysBetween(start, end) {
+  if (!start || !end) return '—'
+  const ms = new Date(end) - new Date(start)
+  return Math.round(ms / 86400000) + ' j'
+}
+
+function RentalModal({ rental, onClose }) {
+  if (!rental) return null
+  const finished = rental.endDate && new Date(rental.endDate) < new Date(new Date().toDateString())
+  const v = rental.vehicle
+  const c = rental.customer
+
+  return (
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Image véhicule */}
+        <div className="relative h-52 bg-gray-100 flex items-center justify-center">
+          <img
+            src={vehicleImage(v)}
+            alt={v?.brand}
+            className="h-full w-full object-contain p-4"
+          />
+          <div className="absolute top-3 left-3">
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${finished ? 'bg-gray-200 text-gray-600' : 'bg-green-500 text-white'}`}>
+              {finished ? 'Terminée' : 'En cours'}
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 bg-white/80 hover:bg-white rounded-full w-8 h-8 flex items-center justify-center text-gray-600 font-bold text-lg shadow"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Contenu */}
+        <div className="p-6 space-y-5">
+          {/* Véhicule */}
+          <div>
+            <p className="text-xs text-gray-400 uppercase font-medium mb-1">Véhicule</p>
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold text-gray-800">{v?.brand}</span>
+              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
+                {TYPE_LABELS[v?.type] || v?.type}
+              </span>
+            </div>
+            <p className="text-sm text-gray-500 mt-0.5">{v?.basePricePerDay} €/jour</p>
+          </div>
+
+          {/* Client */}
+          <div className="border-t pt-4">
+            <p className="text-xs text-gray-400 uppercase font-medium mb-2">Client</p>
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm">
+                {c?.name?.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <p className="font-semibold text-gray-800">{c?.name}</p>
+                <p className="text-xs text-gray-500">{c?.email} · {c?.phoneNumber}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Dates & prix */}
+          <div className="border-t pt-4 grid grid-cols-3 gap-4 text-center">
+            <div>
+              <p className="text-xs text-gray-400 mb-1">Début</p>
+              <p className="font-semibold text-gray-700 text-sm">{rental.startDate}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 mb-1">Durée</p>
+              <p className="font-semibold text-gray-700 text-sm">{daysBetween(rental.startDate, rental.endDate)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-400 mb-1">Fin</p>
+              <p className="font-semibold text-gray-700 text-sm">{rental.endDate}</p>
+            </div>
+          </div>
+
+          {/* Total */}
+          <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex justify-between items-center">
+            <span className="text-sm text-green-700 font-medium">Total location</span>
+            <span className="text-2xl font-bold text-green-700">{rental.totalPrice} €</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function RentalsPage() {
-  const [rentals, setRentals] = useState([])
-  const [vehicles, setVehicles] = useState([])
+  const [rentals, setRentals]     = useState([])
+  const [vehicles, setVehicles]   = useState([])
   const [customers, setCustomers] = useState([])
-  const [form, setForm] = useState(defaultForm)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [form, setForm]           = useState(defaultForm)
+  const [loading, setLoading]     = useState(false)
+  const [error, setError]         = useState('')
+  const [selected, setSelected]   = useState(null)
 
   const fetchAll = async () => {
     const [r, v, c] = await Promise.all([
@@ -16,9 +121,9 @@ export default function RentalsPage() {
       fetch('/api/vehicles').then((res) => res.json()),
       fetch('/api/customers').then((res) => res.json()),
     ])
-    setRentals(r)
-    setVehicles(v)
-    setCustomers(c)
+    setRentals(Array.isArray(r) ? r : [])
+    setVehicles(Array.isArray(v) ? v : [])
+    setCustomers(Array.isArray(c) ? c : [])
   }
 
   useEffect(() => { fetchAll() }, [])
@@ -74,6 +179,9 @@ export default function RentalsPage() {
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-800">Locations</h1>
+
+      {/* Modal */}
+      <RentalModal rental={selected} onClose={() => setSelected(null)} />
 
       {/* Formulaire */}
       <div className="bg-white rounded-xl shadow p-6">
@@ -151,7 +259,11 @@ export default function RentalsPage() {
             {rentals.map((r) => {
               const finished = isFinished(r.endDate)
               return (
-                <tr key={r.id} className={finished ? 'bg-gray-50 opacity-50' : 'hover:bg-gray-50'}>
+                <tr
+                  key={r.id}
+                  onClick={() => setSelected(r)}
+                  className={`cursor-pointer transition ${finished ? 'bg-gray-50 opacity-50' : 'hover:bg-blue-50'}`}
+                >
                   <td className="px-4 py-3 text-gray-500">#{r.id}</td>
                   <td className="px-4 py-3 font-medium">{r.customer?.name}</td>
                   <td className="px-4 py-3">{r.vehicle?.brand}</td>
@@ -169,6 +281,7 @@ export default function RentalsPage() {
             })}
           </tbody>
         </table>
+        <p className="text-xs text-gray-400 text-center py-2">Cliquer sur une ligne pour voir les détails</p>
       </div>
     </div>
   )
