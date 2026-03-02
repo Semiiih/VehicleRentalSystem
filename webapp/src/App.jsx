@@ -1,9 +1,6 @@
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
-import { AuthProvider } from './context/AuthContext'
 import ClientNavbar from './components/ClientNavbar'
 import HomePage from './pages/client/HomePage'
-import LoginPage from './pages/client/LoginPage'
-import RegisterPage from './pages/client/RegisterPage'
 import CatalogPage from './pages/client/CatalogPage'
 import BookingPage from './pages/client/BookingPage'
 import VehiclesPage from './pages/VehiclesPage'
@@ -47,8 +44,6 @@ function ClientLayout() {
       <ClientNavbar />
       <Routes>
         <Route index element={<HomePage />} />
-        <Route path="login" element={<LoginPage />} />
-        <Route path="register" element={<RegisterPage />} />
         <Route path="catalog" element={<CatalogPage />} />
         <Route path="book/:id" element={<BookingPage />} />
       </Routes>
@@ -59,12 +54,10 @@ function ClientLayout() {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/admin/*" element={<AdminLayout />} />
-          <Route path="/*" element={<ClientLayout />} />
-        </Routes>
-      </AuthProvider>
+      <Routes>
+        <Route path="/admin/*" element={<AdminLayout />} />
+        <Route path="/*" element={<ClientLayout />} />
+      </Routes>
     </BrowserRouter>
   )
 }
