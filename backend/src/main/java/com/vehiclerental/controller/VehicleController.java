@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -28,16 +29,13 @@ public class VehicleController {
         return ResponseEntity.ok(vehicleService.getAllVehicles());
     }
 
-    /**
-     * Crée une location pour un véhicule donné.
-     * Exemple : POST /vehicles/1/rent?days=5&customerId=1
-     */
     @PostMapping("/{id}/rent")
     public ResponseEntity<Rental> rentVehicle(
             @PathVariable Long id,
-            @RequestParam int days,
-            @RequestParam Long customerId) {
-        Rental rental = rentalService.createRentalByIds(id, customerId, days);
+            @RequestParam Long customerId,
+            @RequestParam LocalDate startDate,
+            @RequestParam LocalDate endDate) {
+        Rental rental = rentalService.createRentalByIds(id, customerId, startDate, endDate);
         return ResponseEntity.ok(rental);
     }
 

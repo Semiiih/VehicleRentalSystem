@@ -19,4 +19,9 @@ public class RentalController {
     public ResponseEntity<List<Rental>> getAllRentals() {
         return ResponseEntity.ok(rentalService.getAllRentals());
     }
+
+    @GetMapping("/vehicle/{vehicleId}")
+    public ResponseEntity<List<Rental>> getRentalsByVehicle(@PathVariable Long vehicleId) {
+        return ResponseEntity.ok(rentalService.getRentalsByVehicleId(vehicleId));
+    }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-const defaultForm = { vehicleId: '', customerId: '', days: '' }
+const defaultForm = { vehicleId: '', customerId: '', startDate: '', endDate: '' }
 
 export default function RentalsPage() {
   const [rentals, setRentals] = useState([])
@@ -33,10 +33,13 @@ export default function RentalsPage() {
     setError('')
     try {
       const res = await fetch(
-        `/api/vehicles/${form.vehicleId}/rent?days=${form.days}&customerId=${form.customerId}`,
+        `/api/vehicles/${form.vehicleId}/rent?customerId=${form.customerId}&startDate=${form.startDate}&endDate=${form.endDate}`,
         { method: 'POST' }
       )
-      if (!res.ok) throw new Error(await res.text())
+      if (!res.ok) {
+        const body = await res.json().catch(() => null)
+        throw new Error(body?.message || `Erreur ${res.status}`)
+      }
       setForm(defaultForm)
       fetchAll()
     } catch (err) {
@@ -50,11 +53,18 @@ export default function RentalsPage() {
   const customerLabel = (c) => `#${c.id} – ${c.name}`
   const isFinished = (endDate) => endDate && new Date(endDate) < new Date(new Date().toDateString())
 
+  const getDays = () => {
+    if (!form.startDate || !form.endDate) return 0
+    const diff = (new Date(form.endDate) - new Date(form.startDate)) / (1000 * 60 * 60 * 24)
+    return diff > 0 ? diff : 0
+  }
+
   const previewPrice = () => {
-    if (!form.vehicleId || !form.days) return null
+    if (!form.vehicleId || !form.startDate || !form.endDate) return null
     const v = vehicles.find((v) => v.id === parseInt(form.vehicleId))
     if (!v) return null
-    const days = parseInt(form.days)
+    const days = getDays()
+    if (days <= 0) return null
     let price = v.basePricePerDay * days
     if (v.type === 'BIKE') price *= 0.9
     if (v.type === 'TRUCK') price += 50
@@ -91,16 +101,23 @@ export default function RentalsPage() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Nombre de jours</label>
-            <input name="days" type="number" min="1" value={form.days} onChange={handleChange} required
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-              placeholder="ex: 5" />
+            <label className="block text-sm font-medium text-gray-600 mb-1">Date de début</label>
+            <input name="startDate" type="date" value={form.startDate} onChange={handleChange} required
+              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Date de fin</label>
+            <input name="endDate" type="date" value={form.endDate} onChange={handleChange} required
+              min={form.startDate || undefined}
+              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400" />
           </div>
           {previewPrice() && (
-            <div className="flex items-end">
-              <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2 w-full">
-                <p className="text-xs text-green-600 font-medium">Prix estimé</p>
-                <p className="text-2xl font-bold text-green-700">{previewPrice()} €</p>
+            <div className="col-span-2">
+              <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2 inline-flex items-center gap-3">
+                <div>
+                  <p className="text-xs text-green-600 font-medium">Prix estimé ({getDays()} jours)</p>
+                  <p className="text-2xl font-bold text-green-700">{previewPrice()} €</p>
+                </div>
               </div>
             </div>
           )}

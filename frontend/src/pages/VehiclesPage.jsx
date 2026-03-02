@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import VehicleCalendar from '../components/VehicleCalendar'
 
 const TYPE_LABELS = { CAR: '🚗 Voiture', BIKE: '🚲 Vélo', TRUCK: '🚛 Camion' }
 
@@ -16,6 +17,7 @@ export default function VehiclesPage() {
   const [form, setForm] = useState(defaultForm)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [calendarVehicleId, setCalendarVehicleId] = useState(null)
 
   const fetchVehicles = async () => {
     const res = await fetch('/api/vehicles')
@@ -160,7 +162,11 @@ export default function VehiclesPage() {
                   {v.type === 'BIKE' && (v.electric ? '⚡ Électrique' : 'Non électrique')}
                   {v.type === 'TRUCK' && `${v.loadCapacity} kg`}
                 </td>
-                <td className="px-4 py-3">
+                <td className="px-4 py-3 flex items-center gap-2">
+                  <button onClick={() => setCalendarVehicleId(calendarVehicleId === v.id ? null : v.id)}
+                    className={`px-2 py-1 rounded text-xs font-medium transition ${calendarVehicleId === v.id ? 'bg-blue-600 text-white' : 'text-blue-600 hover:text-blue-800 hover:bg-blue-50'}`}>
+                    Calendrier
+                  </button>
                   <button onClick={() => handleDelete(v.id)}
                     className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded text-xs font-medium transition">
                     Supprimer
@@ -171,6 +177,13 @@ export default function VehiclesPage() {
           </tbody>
         </table>
       </div>
+
+      {calendarVehicleId && (
+        <VehicleCalendar
+          vehicleId={calendarVehicleId}
+          onClose={() => setCalendarVehicleId(null)}
+        />
+      )}
     </div>
   )
 }
