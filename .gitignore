@@ -37,3 +37,11 @@ frontend/node_modules/
 frontend/dist/
 frontend/.env
 frontend/.env.local
+
+### Backoffice / Webapp ###
+backoffice/node_modules/
+backoffice/dist/
+backoffice/.env.local
+webapp/node_modules/
+webapp/dist/
+webapp/.env.local
