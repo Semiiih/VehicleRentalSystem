@@ -27,6 +27,16 @@ public class CustomerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found with id: " + id));
     }
 
+    public Customer findOrCreateByEmail(String name, String email, String phoneNumber) {
+        return customerRepository.findByEmail(email).orElseGet(() -> {
+            Customer c = new Customer();
+            c.setName(name);
+            c.setEmail(email);
+            c.setPhoneNumber(phoneNumber);
+            return customerRepository.save(c);
+        });
+    }
+
     public void deleteCustomer(Long id) {
         customerRepository.delete(findById(id));
     }
